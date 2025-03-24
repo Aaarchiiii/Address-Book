@@ -1,48 +1,46 @@
 package com.example.AddressBookApp.Controller;
-import com.example.AddressBookApp.DTO.AddressBookDTO;
-import com.example.AddressBookApp.Interface.AddressBookServiceInterface;
-import com.example.AddressBookApp.Service.AddressBookService;
+
+import com.example.AddressBookApp.DTO.*;
+import com.example.AddressBookApp.Interface.IAuthenticationService;
+import com.example.AddressBookApp.Service.AuthenticatiionService;
+import com.example.AddressBookApp.model.AuthUser;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
-
 @RestController
-@RequestMapping("/addressbook")
-public class AddressBookController {
+//@RequestMapping("/auth")
+public class AuthUserController {
     @Autowired
-    AddressBookServiceInterface service;
+    IAuthenticationService authenticationService;
 
-
-    //Get all contacts
-    @GetMapping("/showcontacts")
-    public ResponseEntity<List<AddressBookDTO>> getAllContacts() {
-        return ResponseEntity.ok(service.getAllContacts());
+    @PostMapping("/register")
+    public ResponseEntity<ResponseDTO> register(@Valid @RequestBody AuthUserDTO userDTO) throws Exception{
+        AuthUser user=authenticationService.register(userDTO);
+        ResponseDTO responseUserDTO =new ResponseDTO("User details is submitted!",user);
+        return new ResponseEntity<>(responseUserDTO, HttpStatus.CREATED);
+    }
+    @PostMapping("/login")
+    public ResponseEntity<ResponseDTO> login(@Valid @RequestBody LoginDTO loginDTO){
+        String result=authenticationService.login(loginDTO);
+        ResponseDTO responseUserDTO=new ResponseDTO("Login successfully!!",result);
+        return  new ResponseEntity<>(responseUserDTO,HttpStatus.OK);
+    }
+    @PutMapping("/forgotPassword/{email}")
+    public ResponseEntity<ResponseDTO> forgotPassword(@PathVariable String email,
+                                                      @Valid @RequestBody ForgetPasswordDTO forgotPasswordDTO) {
+        String responseMessage = authenticationService.forgotPassword(email, forgotPasswordDTO.getPassword());
+        ResponseDTO responseDTO = new ResponseDTO(responseMessage, null);
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+    }
+    @PutMapping("/resetPassword/{email}")
+    public ResponseEntity<ResponseDTO> resetPassword(@PathVariable String email,
+                                                     @Valid @RequestBody ResetPasswordDTO resetPasswordDTO) {
+        String responseMessage = authenticationService.resetPassword(email,
+                resetPasswordDTO.getCurrentPassword(),
+                resetPasswordDTO.getNewPassword());
+        return new ResponseEntity<>(new ResponseDTO(responseMessage, null), HttpStatus.OK);
     }
 
-    // Get a single contact by ID
-    @GetMapping("/getbyid/{id}")
-    public ResponseEntity<AddressBookDTO> getContactById(@PathVariable Long id) {
-        AddressBookDTO contact = service.getContactById(id);
-        return (contact != null) ? ResponseEntity.ok(contact) : ResponseEntity.notFound().build();
-    }
-
-    // Create a new contact
-    @PostMapping("/create")
-    public ResponseEntity<AddressBookDTO> createContact(@RequestBody AddressBookDTO dto) {
-        return ResponseEntity.ok(service.saveContact(dto));
-    }
-
-    // Update an existing contact
-    @PutMapping("/update/{id}")
-    public ResponseEntity<AddressBookDTO> updateContact(@PathVariable Long id, @RequestBody AddressBookDTO dto) {
-        AddressBookDTO updatedContact = service.updateContact(id, dto);
-        return (updatedContact != null) ? ResponseEntity.ok(updatedContact) : ResponseEntity.notFound().build();
-    }
-
-    // Delete a contact
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteContact(@PathVariable Long id) {
-        return (service.deleteContact(id)) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
-    }
 }
