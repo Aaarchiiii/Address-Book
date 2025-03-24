@@ -1,12 +1,15 @@
+
 package com.example.AddressBookApp.model;
+
 import jakarta.persistence.*;
 import lombok.*;
+
 @Entity
+@Table(name = "contacts") // Renamed for clarity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "contacts")
 public class AddressBookModel {
 
     @Id
@@ -14,4 +17,5 @@ public class AddressBookModel {
     private Long id;
     private String name;
     private String phone;
+
 }

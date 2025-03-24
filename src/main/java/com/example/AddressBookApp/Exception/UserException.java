@@ -1,3 +1,4 @@
+
 package com.example.AddressBookApp.Exception;
 
 public class UserException extends RuntimeException {

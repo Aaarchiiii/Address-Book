@@ -1,3 +1,4 @@
+
 package com.example.AddressBookApp.config;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -18,9 +19,8 @@ public class Redisconfig {
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(10))  // Cache expiry time
+                .entryTtl(Duration.ofMinutes(1))
                 .disableCachingNullValues();
-
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(config)
                 .build();
